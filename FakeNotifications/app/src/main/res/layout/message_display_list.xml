@@ -1,0 +1,96 @@
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FalseNotification"
+    android:background="#E6E6E6">
+
+    <ListView
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/defaultMessages"
+        android:id="@+id/messageList"
+        android:dividerHeight="0dp"
+        android:divider="@null">
+
+
+        </ListView>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@id/defaultMessages"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:id="@id/defaultMessages"
+        android:layout_above="@+id/messageSender">
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/auto_reply1"
+            android:hint="@string/reply_message1"
+            android:onClick="default_message"/>
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/auto_reply2"
+            android:hint="@string/reply_message2"
+            android:onClick="default_message"/>
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/auto_reply3"
+            android:hint="@string/reply_message3"
+            android:onClick="default_message"/>
+
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:id="@id/messageSender"
+        android:layout_alignParentBottom="true"
+        android:background="#D3D3D3">
+
+
+        <EditText android:id="@+id/editMessage"
+            android:hint="Tap to Enter Message"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_height="wrap_content"
+            android:textSize="10pt"
+            android:background="@drawable/rounded_corner4"
+            android:onClick="editMessageClick"/>
+
+        <Button
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:onClick="sendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:textSize="10pt"
+            android:background="@drawable/rounded_corner3"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

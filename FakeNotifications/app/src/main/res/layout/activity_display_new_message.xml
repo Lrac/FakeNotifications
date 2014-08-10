@@ -1,0 +1,57 @@
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context=".FalseNotification"
+    android:background="#E6E6E6">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <TextView
+            android:id="@+id/incoming_textview"
+            android:textSize="12pt"
+            android:layout_width="wrap_content"
+            android:maxWidth="300dp"
+            android:layout_height="wrap_content"
+            android:text="Insert long text message here."
+            android:background="@drawable/rounded_corner2" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="16"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+
+        <EditText android:id="@+id/editMessage"
+            android:hint="Tap to Enter Message"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="10pt"
+            android:background="@drawable/rounded_corner4"/>
+
+        <Button
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:textSize="10pt"
+            android:background="@drawable/rounded_corner3"/>
+
+    </LinearLayout>
+
+</LinearLayout>
