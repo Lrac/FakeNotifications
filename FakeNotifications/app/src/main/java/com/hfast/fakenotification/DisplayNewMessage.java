@@ -148,6 +148,7 @@ public class DisplayNewMessage extends Activity {
 
     @Override
     protected void onStop() {
+        System.out.println("COMMIT");
         super.onStop();
         System.out.println("stopping text");
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
