@@ -22,7 +22,11 @@ public class TextMessage {
     public TextMessage (String sender, String message, int id){
         this.sender = sender;
         messageList.add(message);
-        recentMessage = message;
+        if (message.startsWith("Self:")){
+            recentMessage = message.substring(5);
+        } else {
+            recentMessage = message;
+        }
         date = df.format(Calendar.getInstance().getTime());
         this.id = id;
     }
@@ -34,7 +38,7 @@ public class TextMessage {
     }
 
     public void addSelfMessage(String newMessage){
-        messageList.add("Self:"+newMessage);
+        messageList.add("Self:"+ newMessage);
         recentMessage = newMessage;
         date = df.format(Calendar.getInstance().getTime());
     }

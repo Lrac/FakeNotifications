@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.hfast.fakenotification.R;
@@ -29,6 +31,7 @@ public class PhoneCall extends Activity {
     private String caller;
     ConnectionService mService;
     boolean mBound = false;
+    Button button1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class PhoneCall extends Activity {
         String number = intent.getStringExtra(Main.EXTRA_NUMBER);
 
         setContentView(R.layout.activity_phone_call);
-
+        button1 = (Button) findViewById(R.id.declineWithMessage);
         ((TextView)findViewById(R.id.incoming_caller)).setText(caller);
         ((TextView)findViewById(R.id.incoming_number)).setText(number);
         new_player = MediaPlayer.create(this, R.raw.fakecall);
@@ -107,12 +110,36 @@ public class PhoneCall extends Activity {
 
 
     public void accept_call(View view) {
-        setContentView(R.layout.activity_phone_call);
+	setContentView(R.layout.active_phone_call);
         vibrator.cancel();
         player.release();
         mService.logMessage("User clicked accept call");
         new_player.start();
         new AnswerPhoneCall().execute("");
+    }
+
+    public void declineWithMessage(View view){
+        PopupMenu popup = new PopupMenu(PhoneCall.this, button1);
+        popup.getMenuInflater().inflate(R.menu.popup_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                String message = item.getTitle().toString();
+                Intent intent = new Intent("declineWithMessage");
+                intent.putExtra("message", message);
+                intent.putExtra("caller", caller);
+                getApplicationContext().sendBroadcast(intent);
+                vibrator.cancel();
+                player.release();
+                new_player.stop();
+                mService.logMessage("User declined with \"" + item.getTitleCondensed() + "\" default message");
+                finish();
+                return true;
+            }
+        });
+        popup.show();
+        mService.logMessage("User selected \"Decline with Message\"");
     }
 
     @Override

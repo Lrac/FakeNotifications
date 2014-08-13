@@ -117,6 +117,7 @@ public class Main extends Activity {
         this.registerReceiver(displayPebbleCall, new IntentFilter("pebblecall"));
         this.registerReceiver(displayPebbleText, new IntentFilter("pebbletext"));
         this.registerReceiver(addSelfMessage, new IntentFilter("selfmessage"));
+        this.registerReceiver(declineWithMessage, new IntentFilter("declineWithMessage"));
 
         listAdapter = new MyAdapter(this, textList);
         listView = (ListView) findViewById(R.id.inboxList);
@@ -129,9 +130,15 @@ public class Main extends Activity {
                 TextMessage text = (TextMessage) parent.getItemAtPosition(position);
                 resultIntent.putExtra(EXTRA_SENDER, text.getSender());
                 resultIntent.putExtra(EXTRA_MESSAGE,(ArrayList) text.getAllMessages());
-                mNotificationManager.cancel(text.getSender(), 1);
-                mService.logMessage("Selected " + text.getSender() + "'s messages");
-                startActivity(resultIntent);
+                try {
+                    mNotificationManager.cancel(text.getSender(), 1);
+                } catch (NullPointerException e){
+                    System.out.println("nothing wrong here");
+                } finally {
+                    mService.logMessage("Selected " + text.getSender() + "'s messages");
+                    startActivity(resultIntent);
+                }
+
             }
         });
 
@@ -167,12 +174,64 @@ public class Main extends Activity {
         }
     };
 
+    private BroadcastReceiver declineWithMessage = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+            String caller = intent.getStringExtra("caller");
+
+            Intent resultIntent = new Intent(getApplicationContext(), DisplayNewMessage.class);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+            boolean contains = false;
+            TextMessage textMessage = null;
+
+            if (textList.isEmpty()) {
+                textMessage = new TextMessage(caller, "Self:" + message, id);
+                textList.add(0, textMessage);
+                id++;
+                resultIntent.putExtra(EXTRA_MESSAGE, (ArrayList) textMessage.getAllMessages());
+                resultIntent.putExtra(EXTRA_SENDER, caller);
+                listAdapter.notifyDataSetChanged();
+            } else {
+
+                for (TextMessage text : textList) {
+                    if (caller.contentEquals(text.getSender())) {
+                        text.addSelfMessage(message);
+                        resultIntent.putExtra(EXTRA_MESSAGE,(ArrayList) text.getAllMessages()); //change to getAllMessages() once we figure out how to display more than one message
+                        resultIntent.putExtra(EXTRA_SENDER, text.getSender());
+                        textMessage = text;
+                        contains = true;
+                    }
+                }
+                if (contains) {
+                    textList.remove(textMessage);
+                    textList.add(0, textMessage);
+                    listAdapter.notifyDataSetChanged();
+                } else {
+                    textMessage = new TextMessage(caller, "Self" + message, id);
+                    textList.add(0, textMessage);
+                    id++;
+                    resultIntent.putExtra(EXTRA_MESSAGE,(ArrayList)textMessage.getAllMessages());
+                    resultIntent.putExtra(EXTRA_SENDER, caller);
+                    listAdapter.notifyDataSetChanged();
+                }
+
+            }
+
+            startActivity(resultIntent);
+
+        }
+    };
+
     private BroadcastReceiver addSelfMessage = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("sender");
             TextMessage textMessage = null;
+
+
 
             for (TextMessage text : textList) {
                 if (sender.contentEquals(text.getSender())) {

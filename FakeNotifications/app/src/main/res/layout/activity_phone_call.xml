@@ -52,37 +52,49 @@
             android:layout_height="wrap_content"
             android:text="Number" />
 
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_weight="6"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <Button
+                android:textSize="17pt"
+                android:onClick="accept_call"
+                android:layout_marginRight="65dp"
+                android:layout_width="wrap_content"
+                android:textColor="#FFFFFF"
+                android:maxWidth="300dp"
+                android:layout_height="wrap_content"
+                android:text="Accept"
+                android:background="@drawable/rounded_corner6" />
+
+            <Button
+                android:textSize="17pt"
+                android:onClick="end_activity"
+                android:layout_width="wrap_content"
+                android:maxWidth="300dp"
+                android:textColor="#FFFFFF"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Decline"
+                android:background="@drawable/rounded_corner5" />
+            </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="declineWithMessage"
+            android:id="@+id/declineWithMessage"
+            android:textColor="#FFFFFF"
+            android:textSize="12pt"
+            android:layout_gravity="center"
+            android:text="Decline with message"
+            android:background="@drawable/rounded_corner8"/>
+
     </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_weight="8"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="center">
-
-        <Button
-            android:textSize="17pt"
-            android:onClick="accept_call"
-            android:layout_marginRight="65dp"
-            android:layout_width="wrap_content"
-            android:textColor="#FFFFFF"
-            android:maxWidth="300dp"
-            android:layout_height="wrap_content"
-            android:text="Accept"
-            android:background="@drawable/rounded_corner6" />
-
-        <Button
-            android:textSize="17pt"
-            android:onClick="end_activity"
-            android:layout_width="wrap_content"
-            android:maxWidth="300dp"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:text="Decline"
-            android:background="@drawable/rounded_corner5" />
-
-        </LinearLayout>
 
 </LinearLayout>
