@@ -19,6 +19,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
@@ -71,7 +73,7 @@ public class DisplayNewMessage extends Activity {
                 mService.logMessage("Editing message");
             }
         });
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
 
 
@@ -148,6 +150,7 @@ public class DisplayNewMessage extends Activity {
     protected void onStop() {
         super.onStop();
         System.out.println("stopping text");
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         mService.logMessage("Closing " + sender + "'s messages activity");
         if (mBound) {
             unbindService(mConnection);

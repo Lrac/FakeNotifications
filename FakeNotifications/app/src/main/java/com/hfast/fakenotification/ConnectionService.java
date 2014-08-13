@@ -43,7 +43,7 @@ import javax.net.ssl.SSLContext;
  */
 public class ConnectionService extends Service {
     //These will need to be changed depending on server and user info
-    public static final String HOST = "10.0.2.2"; //wireless IPv4 address, 192.168.0.184 is wayne's address
+    public static final String HOST = "192.168.0.184"; //wireless IPv4 address, 192.168.0.184 is wayne's address
     public static final int PORT = 5222; //default port
     public static final String USERNAME = "android";
     public static final String PASSWORD = "12345";
@@ -151,7 +151,7 @@ public class ConnectionService extends Service {
                     }
                 }, filter);
 
-                chat = ChatManager.getInstanceFor(conn).createChat("lrac@carl/Smack", new MessageListener() {
+                chat = ChatManager.getInstanceFor(conn).createChat("lrac@experimenter/Smack", new MessageListener() {
                     @Override
                     public void processMessage(Chat chat, Message message) {
 

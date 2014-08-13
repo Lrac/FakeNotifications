@@ -182,7 +182,7 @@ public class Main extends Activity {
             String caller = intent.getStringExtra("caller");
 
             Intent resultIntent = new Intent(getApplicationContext(), DisplayNewMessage.class);
-            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            resultIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
             boolean contains = false;
             TextMessage textMessage = null;
@@ -481,6 +481,11 @@ public class Main extends Activity {
         mService.logMessage("Android app stopped");
         TempWakeLock.release();
         unregisterReceiver(displayAndroidText);
+        unregisterReceiver(displayAndroidCall);
+        unregisterReceiver(displayPebbleCall);
+        unregisterReceiver(displayPebbleText);
+        unregisterReceiver(addSelfMessage);
+        unregisterReceiver(declineWithMessage);
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
