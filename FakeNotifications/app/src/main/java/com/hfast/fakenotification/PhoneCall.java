@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -27,8 +29,10 @@ public class PhoneCall extends Activity {
     private Vibrator vibrator;
     private MediaPlayer player;
     private MediaPlayer new_player;
+    private String filename;
 
     private String caller;
+    private String number;
     ConnectionService mService;
     boolean mBound = false;
     Button button1;
@@ -39,13 +43,14 @@ public class PhoneCall extends Activity {
 
         Intent intent = getIntent();
         caller = intent.getStringExtra(Main.EXTRA_CALLER);
-        String number = intent.getStringExtra(Main.EXTRA_NUMBER);
+        number = intent.getStringExtra(Main.EXTRA_NUMBER);
+        filename = intent.getStringExtra(Main.EXTRA_FILENAME);
 
         setContentView(R.layout.activity_phone_call);
         button1 = (Button) findViewById(R.id.declineWithMessage);
         ((TextView)findViewById(R.id.incoming_caller)).setText(caller);
         ((TextView)findViewById(R.id.incoming_number)).setText(number);
-        new_player = MediaPlayer.create(this, R.raw.fakecall);
+        new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + filename + ".mp3"));
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -110,7 +115,7 @@ public class PhoneCall extends Activity {
 
 
     public void accept_call(View view) {
-	setContentView(R.layout.active_phone_call);
+	    setContentView(R.layout.active_phone_call);
         vibrator.cancel();
         player.release();
         mService.logMessage("User clicked accept call");

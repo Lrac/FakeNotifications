@@ -80,6 +80,7 @@ public class Main extends Activity {
     public final static String EXTRA_NUMBER = "com.example.myfirstapp.NUMBER";
     public final static String EXTRA_CALLER = "com.example.myfirstapp.CALLER";
     public final static String EXTRA_SENDER = "com.example.myfirstapp.SENDER";
+    public final static String EXTRA_FILENAME = "com.example.myfirstapp.FILENAME";
     public static final String TEXT_STAT = "TextStatus";
 
 
@@ -251,10 +252,12 @@ public class Main extends Activity {
             System.out.println("received call broadcast");
             String caller = intent.getStringExtra("sender");
             String number = intent.getStringExtra("content");
+            String filename = intent.getStringExtra("filename");
 
             Intent resultIntent = new Intent(getApplicationContext(), PhoneCall.class);
             resultIntent.putExtra(EXTRA_CALLER, caller);
             resultIntent.putExtra(EXTRA_NUMBER, number);
+            resultIntent.putExtra(EXTRA_FILENAME, filename);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
             startActivity(resultIntent);

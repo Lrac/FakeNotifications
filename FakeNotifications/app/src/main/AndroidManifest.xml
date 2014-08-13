@@ -36,6 +36,7 @@
 
         </activity>
         <activity
+            android:launchMode="singleInstance"
             android:name=".PhoneCall"
             android:label="@string/title_activity_phone_call"
             android:parentActivityName=".Main" >
