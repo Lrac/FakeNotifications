@@ -107,6 +107,7 @@ public class PhoneCall extends Activity {
 
 
     public void accept_call(View view) {
+        setContentView(R.layout.activity_phone_call);
         vibrator.cancel();
         player.release();
         mService.logMessage("User clicked accept call");
