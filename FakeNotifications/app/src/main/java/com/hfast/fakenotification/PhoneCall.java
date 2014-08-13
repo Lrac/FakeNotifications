@@ -48,7 +48,7 @@ public class PhoneCall extends Activity {
 
         call();
 
-        new TimeoutOperation().execute("");
+        new TakingPhoneCall().execute("");
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -112,7 +112,7 @@ public class PhoneCall extends Activity {
         player.release();
         mService.logMessage("User clicked accept call");
         new_player.start();
-        new TimeoutOperation().execute("");
+        new AnswerPhoneCall().execute("");
     }
 
     @Override
@@ -145,7 +145,31 @@ public class PhoneCall extends Activity {
         }
     }
 
-    private class TimeoutOperation extends AsyncTask<String, Void, Void>{
+    private class TakingPhoneCall extends AsyncTask<String, Void, Void>{
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if(new_player.isPlaying()) {
+                new_player.stop();
+            }
+
+            finish();
+            super.onPostExecute(result);
+        }
+    }
+
+    private class AnswerPhoneCall extends AsyncTask<String, Void, Void>{
 
         @Override
         protected Void doInBackground(String... params) {
