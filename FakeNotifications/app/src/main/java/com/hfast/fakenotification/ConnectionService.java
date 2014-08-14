@@ -43,7 +43,7 @@ import javax.net.ssl.SSLContext;
  */
 public class ConnectionService extends Service {
     //These will need to be changed depending on server and user info
-    public static final String HOST = "192.168.0.184"; //wireless IPv4 address, 192.168.0.184 is wayne's address
+    public static final String HOST = "192.168.0.197"; //wireless IPv4 address, 192.168.0.184 is wayne's address
     public static final int PORT = 5222; //default port
     public static final String USERNAME = "android";
     public static final String PASSWORD = "12345";
@@ -151,7 +151,7 @@ public class ConnectionService extends Service {
                     }
                 }, filter);
 
-                chat = ChatManager.getInstanceFor(conn).createChat("lrac@experimenter/Smack", new MessageListener() {
+                chat = ChatManager.getInstanceFor(conn).createChat("lrac@carl/Smack", new MessageListener() {
                     @Override
                     public void processMessage(Chat chat, Message message) {
 
@@ -188,12 +188,13 @@ public class ConnectionService extends Service {
 
     //Parses and sorts messages passed from the Listener
     public void sortMessage(String message){
-        String[] tags = new String[]{"device", "type", "sender", "content"};
+        String[] tags = new String[]{"device", "type", "sender", "content", "audiofile"};
         String[] parsedMessage = extract(message, tags);
         String device = parsedMessage[0].toLowerCase();
         String type = parsedMessage[1].toLowerCase();
         String sender = parsedMessage[2];
         String content = parsedMessage[3];
+        String filename = parsedMessage[4];
         if(sender == null){
             System.out.println("Error: incorrect sender tag");
             return;
@@ -206,6 +207,7 @@ public class ConnectionService extends Service {
         Intent intent = new Intent(device+type);
         intent.putExtra("sender", sender);
         intent.putExtra("content", content);
+        intent.putExtra("filename", filename);
         System.out.println("Sending broadcast message: " + device+type);
         this.sendOrderedBroadcast(intent, null);
 

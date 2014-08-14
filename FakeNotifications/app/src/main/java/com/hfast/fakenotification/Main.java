@@ -61,9 +61,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.net.ssl.SSLContext;
 import com.hfast.fakenotification.PebbleKit;
+import com.hfast.fakenotification.util.PebbleDictionary;
 
 
 /**
@@ -87,6 +89,8 @@ public class Main extends Activity {
     private List<TextMessage> textList = new ArrayList<TextMessage>();
     private MyAdapter listAdapter;
     private int id = 0;
+
+    private PebbleKit.PebbleDataReceiver mReceiver;
 
     PowerManager.WakeLock TempWakeLock;
     ListView listView;
@@ -119,6 +123,35 @@ public class Main extends Activity {
         this.registerReceiver(displayPebbleText, new IntentFilter("pebbletext"));
         this.registerReceiver(addSelfMessage, new IntentFilter("selfmessage"));
         this.registerReceiver(declineWithMessage, new IntentFilter("declineWithMessage"));
+
+        mReceiver = new PebbleKit.PebbleDataReceiver(UUID.fromString("13c15dd2-7e2c-4712-8e88-d707d2912093")) {
+            @Override
+            public void receiveData(Context context, int transactionId, PebbleDictionary data) {
+                //ACK the message
+                PebbleKit.sendAckToPebble(context, transactionId);
+
+                //Check the key exists
+                if(data.getUnsignedInteger(KEY_BUTTON_EVENT) != null) {
+                    int button = data.getUnsignedInteger(KEY_BUTTON_EVENT).intValue();
+
+                    switch (button) {
+                        case BUTTON_EVENT_UP:
+                            //The UP button was pressed
+                           mService.logMessage("Pebble: Call Accepted");
+                            break;
+                        case BUTTON_EVENT_DOWN:
+                            //The DOWN button was pressed
+                            mService.logMessage("Pebble: Call Declined");
+                            break;
+                        case BUTTON_EVENT_SELECT:
+                            //The SELECT button was pressed
+                           mService.logMessage("Pebble: Preset User Message Played");
+                            break;
+                    }
+                }
+            }
+        };
+        PebbleKit.registerReceivedDataHandler(this, mReceiver);
 
         listAdapter = new MyAdapter(this, textList);
         listView = (ListView) findViewById(R.id.inboxList);
@@ -377,11 +410,26 @@ public class Main extends Activity {
         }
     };
 
+    private static final int
+            KEY_BUTTON_EVENT = 0,
+            BUTTON_EVENT_UP = 1,
+            BUTTON_EVENT_DOWN = 2,
+            BUTTON_EVENT_SELECT = 3,
+            DISPLAY_CALL_CALLER = 4,
+            DISPLAY_CALL_NUMBER = 5;
+
+
     private BroadcastReceiver displayPebbleCall = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String caller = intent.getStringExtra("sender");
             String number = intent.getStringExtra("content");
+
+            //Make the watch vibrate
+            PebbleDictionary dict = new PebbleDictionary();
+            dict.addString(DISPLAY_CALL_CALLER, caller);
+            dict.addString(DISPLAY_CALL_NUMBER, number);
+            PebbleKit.sendDataToPebble(context, UUID.fromString("13c15dd2-7e2c-4712-8e88-d707d2912093"), dict);
 
 
         }
@@ -486,6 +534,7 @@ public class Main extends Activity {
         unregisterReceiver(displayPebbleText);
         unregisterReceiver(addSelfMessage);
         unregisterReceiver(declineWithMessage);
+        unregisterReceiver(mReceiver);
         if (mBound) {
             unbindService(mConnection);
             mBound = false;

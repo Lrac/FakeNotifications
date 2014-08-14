@@ -43,6 +43,7 @@ public class DisplayNewMessage extends Activity {
 
     ConnectionService mService;
     boolean mBound = false;
+    boolean screenOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,19 +81,21 @@ public class DisplayNewMessage extends Activity {
     private BroadcastReceiver newIncomingMessage = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String newSender = intent.getStringExtra("sender");
-            if(newSender.contentEquals(sender)){
-                //add on new message
-                messages.add(intent.getStringExtra("content"));
-                theAdapter.notifyDataSetChanged();
-                // Creates the vibrate, color flash, and tone
-                Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
-                vibrator.vibrate(500);
+            if (screenOn) {
+                String newSender = intent.getStringExtra("sender");
+                if (newSender.contentEquals(sender)) {
+                    //add on new message
+                    messages.add(intent.getStringExtra("content"));
+                    theAdapter.notifyDataSetChanged();
+                    // Creates the vibrate, color flash, and tone
+                    Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
+                    vibrator.vibrate(500);
 
-                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                r.play();
-                setResultData("already received");
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                    r.play();
+                    setResultData("already received");
+                }
             }
         }
     };
@@ -152,6 +155,7 @@ public class DisplayNewMessage extends Activity {
         super.onStop();
         System.out.println("stopping text");
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        screenOn = false;
         mService.logMessage("Closing " + sender + "'s messages activity");
         if (mBound) {
             unbindService(mConnection);
@@ -172,6 +176,7 @@ public class DisplayNewMessage extends Activity {
         super.onStart();
         Intent intent = new Intent(this, ConnectionService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        screenOn = true;
         System.out.println("starting text");
     }
 
