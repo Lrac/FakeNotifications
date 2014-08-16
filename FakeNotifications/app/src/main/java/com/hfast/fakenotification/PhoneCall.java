@@ -113,7 +113,7 @@ public class PhoneCall extends Activity {
     }
 
 
-    public void accept_call(View view) throws IOException {
+    public void accept_call(View view) {
         player.release();
         new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + filename + ".mp3"));
 	    setContentView(R.layout.active_phone_call);
