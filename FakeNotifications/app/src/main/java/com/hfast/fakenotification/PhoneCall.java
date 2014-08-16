@@ -50,7 +50,6 @@ public class PhoneCall extends Activity {
         button1 = (Button) findViewById(R.id.declineWithMessage);
         ((TextView)findViewById(R.id.incoming_caller)).setText(caller);
         ((TextView)findViewById(R.id.incoming_number)).setText(number);
-        new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + filename + ".mp3"));
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -114,10 +113,11 @@ public class PhoneCall extends Activity {
     }
 
 
-    public void accept_call(View view) {
+    public void accept_call(View view) throws IOException {
+        player.release();
+        new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + filename + ".mp3"));
 	    setContentView(R.layout.active_phone_call);
         vibrator.cancel();
-        player.release();
         mService.logMessage("User clicked accept call");
         new_player.start();
         new AnswerPhoneCall().execute("");
