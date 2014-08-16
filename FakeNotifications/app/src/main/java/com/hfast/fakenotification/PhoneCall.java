@@ -30,6 +30,7 @@ public class PhoneCall extends Activity {
     private MediaPlayer player;
     private MediaPlayer new_player;
     private String filename;
+    private int filelength;
 
     private String caller;
     private String number;
@@ -45,6 +46,7 @@ public class PhoneCall extends Activity {
         caller = intent.getStringExtra(Main.EXTRA_CALLER);
         number = intent.getStringExtra(Main.EXTRA_NUMBER);
         filename = intent.getStringExtra(Main.EXTRA_FILENAME);
+        filelength = Integer.parseInt(intent.getStringExtra(Main.EXTRA_FILELENGTH));
 
         setContentView(R.layout.activity_phone_call);
         button1 = (Button) findViewById(R.id.declineWithMessage);
@@ -207,7 +209,7 @@ public class PhoneCall extends Activity {
         protected Void doInBackground(String... params) {
 
             try {
-                Thread.sleep(12000);
+                Thread.sleep(filelength);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
