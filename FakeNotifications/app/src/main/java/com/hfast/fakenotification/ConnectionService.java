@@ -6,9 +6,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
-import android.view.KeyEvent;
-
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
@@ -33,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Date;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 import javax.net.ssl.SSLContext;
@@ -43,10 +39,11 @@ import javax.net.ssl.SSLContext;
  */
 public class ConnectionService extends Service {
     //These will need to be changed depending on server and user info
-    public static final String HOST = "192.168.0.197"; //wireless IPv4 address, 192.168.0.184 is wayne's address
+    public static final String HOST = "192.168.0.184"; //wireless IPv4 address, 192.168.0.184 is wayne's address
     public static final int PORT = 5222; //default port
     public static final String USERNAME = "android";
     public static final String PASSWORD = "12345";
+    public static final String RECEIVE_FROM = "lrac@experimenter/Smack";
 
     private double sendTime;
     private XMPPConnection conn;
@@ -65,7 +62,7 @@ public class ConnectionService extends Service {
             public void run() {
                 //set up connection configurations
 
-                ConnectionConfiguration configuration = new ConnectionConfiguration(HOST, PORT, "Carl");
+                ConnectionConfiguration configuration = new ConnectionConfiguration(HOST, PORT);
                 configuration.setDebuggerEnabled(true);
                 configuration.setCompressionEnabled(true);
                 try {
@@ -81,7 +78,7 @@ public class ConnectionService extends Service {
 
                 conn = new XMPPTCPConnection(configuration);
 
-
+                System.out.println("I make it here");
                 //attempts to connect and login to XMPP server
                 try {
                     conn.connect();
@@ -151,7 +148,7 @@ public class ConnectionService extends Service {
                     }
                 }, filter);
 
-                chat = ChatManager.getInstanceFor(conn).createChat("lrac@carl/Smack", new MessageListener() {
+                chat = ChatManager.getInstanceFor(conn).createChat(RECEIVE_FROM, new MessageListener() {
                     @Override
                     public void processMessage(Chat chat, Message message) {
 
@@ -188,28 +185,72 @@ public class ConnectionService extends Service {
 
     //Parses and sorts messages passed from the Listener
     public void sortMessage(String message){
-        String[] tags = new String[]{"device", "type", "sender", "content", "audiofile"};
-        String[] parsedMessage = extract(message, tags);
-        String device = parsedMessage[0].toLowerCase();
-        String type = parsedMessage[1].toLowerCase();
-        String sender = parsedMessage[2];
-        String content = parsedMessage[3];
-        String filename = parsedMessage[4];
-        if(sender == null){
-            System.out.println("Error: incorrect sender tag");
-            return;
-        }
-        if(content == null){
-            System.out.println("Error: incorrect content tag");
-            return;
-        }
+        String[] tags = new String[]{"device", "type"};
+        String[] parsedContext = extract(message, tags);
+        String device = parsedContext[0].toLowerCase();
+        String type = parsedContext[1].toLowerCase();
+        String messageContext = device + type;
+        if (messageContext.contentEquals("androidcall")){
+            String[] contentTags = new String[]{"sender", "content", "audiofile", "audiolength"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            intent.putExtra("audiofile", parsedContent[2]);
+            intent.putExtra("audiolength", parsedContent[3]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
 
-        Intent intent = new Intent(device+type);
-        intent.putExtra("sender", sender);
-        intent.putExtra("content", content);
-        intent.putExtra("filename", filename);
-        System.out.println("Sending broadcast message: " + device+type);
-        this.sendOrderedBroadcast(intent, null);
+        } else if (messageContext.contentEquals("androidtext")){
+            String[] contentTags = new String[]{"sender", "content"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
+
+        } else if (messageContext.contentEquals("pebblecall")){
+            String[] contentTags = new String[]{"sender", "content", "vibratelength"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            intent.putExtra("vibratelength", parsedContent[2]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
+
+        } else if (messageContext.contentEquals("pebbletext")){
+            String[] contentTags = new String[]{"sender", "content", "number"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            intent.putExtra("number", parsedContent[2]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
+
+        } else if (messageContext.contentEquals("glasscall")){
+            String[] contentTags = new String[]{"sender", "content", "audiofile", "audiolength"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            intent.putExtra("audiofile", parsedContent[2]);
+            intent.putExtra("audiolength", parsedContent[3]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
+
+        } else if (messageContext.contentEquals("glasstext")){
+            String[] contentTags = new String[]{"sender", "content"};
+            String [] parsedContent = extract(message, contentTags);
+            Intent intent = new Intent(device+type);
+            intent.putExtra("sender", parsedContent[0]);
+            intent.putExtra("content", parsedContent[1]);
+            System.out.println("Sending broadcast message: " + device+type);
+            this.sendOrderedBroadcast(intent, null);
+
+        }
 
 
     }

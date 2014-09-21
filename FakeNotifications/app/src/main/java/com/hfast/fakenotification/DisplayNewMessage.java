@@ -7,27 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.support.v4.content.LocalBroadcastManager;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import com.hfast.fakenotification.R;
 
 import java.util.List;
 
@@ -60,23 +52,29 @@ public class DisplayNewMessage extends Activity {
         theAdapter = new MessageAdapter(this, messages);
         theListView = (ListView) findViewById(R.id.messageList);
         theListView.setAdapter(theAdapter);
-//        SharedPreferences textStat = getSharedPreferences(TEXT_STAT, 0);
-//        SharedPreferences.Editor editor = textStat.edit();
-//        editor.putBoolean("isThereText", false);
-//        editor.commit();
+        scrollMyListViewToBottom();
 
-//                ((TextView) findViewById(R.id.incoming_textview)).setText(message);
         System.out.println("creating text");
 
         editMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mService.logMessage("Editing message");
+                mService.logMessage("Android: Editing message");
             }
         });
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
 
+
+    private void scrollMyListViewToBottom() {
+        theListView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Select the last row so it will scroll into view...
+                theListView.setSelection(theAdapter.getCount() - 1);
+            }
+        });
+    }
 
     private BroadcastReceiver newIncomingMessage = new BroadcastReceiver() {
         @Override
@@ -87,6 +85,7 @@ public class DisplayNewMessage extends Activity {
                     //add on new message
                     messages.add(intent.getStringExtra("content"));
                     theAdapter.notifyDataSetChanged();
+                    scrollMyListViewToBottom();
                     // Creates the vibrate, color flash, and tone
                     Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
                     vibrator.vibrate(500);
@@ -105,7 +104,7 @@ public class DisplayNewMessage extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             ConnectionService.LocalBinder binder = (ConnectionService.LocalBinder) service;
             mService = binder.getService();
-            mService.logMessage("Start:Displaying " + sender + "'s messages");
+            mService.logMessage("Android: Displaying " + sender + "'s messages");
             mBound = true;
         }
 
@@ -119,7 +118,7 @@ public class DisplayNewMessage extends Activity {
         Button button = (Button) view;
         String message = button.getHint().toString();
         editMessage.setText(message);
-        mService.logMessage("Selected default \"" + button.getText() + "\" message");
+        mService.logMessage("Android: Selected default \"" + button.getText() + "\" message");
 
     }
 
@@ -128,12 +127,13 @@ public class DisplayNewMessage extends Activity {
         if(!message.isEmpty()) {
             messages.add("Self:" + message);
             theAdapter.notifyDataSetChanged();
+            scrollMyListViewToBottom();
             Intent intent = new Intent("selfmessage");
             intent.putExtra("sender", sender);
             intent.putExtra("message", message);
             this.sendBroadcast(intent, null);
             editMessage.setText("");
-            mService.logMessage("User sent message: \"" + message + "\"");
+            mService.logMessage("Android: User sent message: \"" + message + "\"");
         }
     }
 
@@ -151,16 +151,11 @@ public class DisplayNewMessage extends Activity {
 
     @Override
     protected void onStop() {
-        System.out.println("COMMIT");
         super.onStop();
         System.out.println("stopping text");
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         screenOn = false;
-        mService.logMessage("Closing " + sender + "'s messages activity");
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
+
     }
 
     @Override
@@ -168,6 +163,11 @@ public class DisplayNewMessage extends Activity {
         super.onDestroy();
         System.out.println("destroying text");
         this.unregisterReceiver(newIncomingMessage);
+        mService.logMessage("Android: Closing " + sender + "'s messages activity");
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
 
     }
 

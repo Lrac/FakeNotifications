@@ -22,15 +22,13 @@ import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.hfast.fakenotification.R;
-
 public class PhoneCall extends Activity {
 
     private Vibrator vibrator;
     private MediaPlayer player;
     private MediaPlayer new_player;
-    private String filename;
-    private int filelength;
+    private String audiofile;
+    private int audiolength;
 
     private String caller;
     private String number;
@@ -45,8 +43,8 @@ public class PhoneCall extends Activity {
         Intent intent = getIntent();
         caller = intent.getStringExtra(Main.EXTRA_CALLER);
         number = intent.getStringExtra(Main.EXTRA_NUMBER);
-        filename = intent.getStringExtra(Main.EXTRA_FILENAME);
-        filelength = Integer.parseInt(intent.getStringExtra(Main.EXTRA_FILELENGTH));
+        audiofile = intent.getStringExtra(Main.EXTRA_FILENAME);
+        audiolength = Integer.parseInt(intent.getStringExtra(Main.EXTRA_FILELENGTH));
 
         setContentView(R.layout.activity_phone_call);
         button1 = (Button) findViewById(R.id.declineWithMessage);
@@ -65,7 +63,7 @@ public class PhoneCall extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             ConnectionService.LocalBinder binder = (ConnectionService.LocalBinder) service;
             mService = binder.getService();
-            mService.logMessage("Start:Displaying phone call from " + caller);
+            mService.logMessage("Android: Displaying phone call from " + caller);
             mBound = true;
         }
 
@@ -109,18 +107,17 @@ public class PhoneCall extends Activity {
     public void end_activity(View view) {
         vibrator.cancel();
         player.release();
-        new_player.stop();
-        mService.logMessage("User declined call");
+        mService.logMessage("Android: User declined call");
         finish();
     }
 
 
     public void accept_call(View view) {
         player.release();
-        new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + filename + ".mp3"));
+        new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + audiofile + ".mp3"));
 	    setContentView(R.layout.active_phone_call);
         vibrator.cancel();
-        mService.logMessage("User clicked accept call");
+        mService.logMessage("Android: User clicked accept call");
         new_player.start();
         new AnswerPhoneCall().execute("");
     }
@@ -139,14 +136,13 @@ public class PhoneCall extends Activity {
                 getApplicationContext().sendBroadcast(intent);
                 vibrator.cancel();
                 player.release();
-                new_player.stop();
-                mService.logMessage("User declined with \"" + item.getTitleCondensed() + "\" default message");
+                mService.logMessage("Android: User declined with \"" + item.getTitleCondensed() + "\" default message");
                 finish();
                 return true;
             }
         });
         popup.show();
-        mService.logMessage("User selected \"Decline with Message\"");
+        mService.logMessage("Android: User selected \"Decline with Message\"");
     }
 
     @Override
@@ -172,7 +168,7 @@ public class PhoneCall extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        mService.logMessage("Call ended");
+        mService.logMessage("Android: Call ended");
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
@@ -209,7 +205,7 @@ public class PhoneCall extends Activity {
         protected Void doInBackground(String... params) {
 
             try {
-                Thread.sleep(filelength);
+                Thread.sleep(audiolength);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

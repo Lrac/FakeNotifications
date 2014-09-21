@@ -10,15 +10,15 @@ import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
-import com.hfast.fakenotification.Constants.*;
-import com.hfast.fakenotification.util.PebbleDictionary;
 import com.google.common.primitives.UnsignedInteger;
+import com.hfast.fakenotification.Constants.PebbleAppType;
+import com.hfast.fakenotification.Constants.PebbleDataType;
+import com.hfast.fakenotification.util.PebbleDictionary;
 
 import org.json.JSONException;
 
 import java.util.UUID;
 
-import static com.hfast.fakenotification.Constants.*;
 import static com.hfast.fakenotification.Constants.APP_UUID;
 import static com.hfast.fakenotification.Constants.CUST_APP_TYPE;
 import static com.hfast.fakenotification.Constants.CUST_ICON;
