@@ -34,6 +34,8 @@ public class PhoneCall extends Activity {
     private String number;
     ConnectionService mService;
     boolean mBound = false;
+    boolean isPlaying = false;
+    boolean callAccepted = false;
     Button button1;
 
     @Override
@@ -102,11 +104,17 @@ public class PhoneCall extends Activity {
         // Ringtone
         player = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
         player.start();
+        isPlaying = true;
     }
 
     public void end_activity(View view) {
         vibrator.cancel();
         player.release();
+        if(callAccepted)
+            new_player.release();
+        callAccepted = false;
+
+        isPlaying = false;
         mService.logMessage("Android: User declined call");
         finish();
     }
@@ -114,8 +122,12 @@ public class PhoneCall extends Activity {
 
     public void accept_call(View view) {
         player.release();
+        isPlaying = false;
+        callAccepted = true;
         new_player = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ "/Music/" + audiofile + ".mp3"));
 	    setContentView(R.layout.active_phone_call);
+        ((TextView)findViewById(R.id.incoming_caller)).setText(caller);
+        ((TextView)findViewById(R.id.incoming_number)).setText(number);
         vibrator.cancel();
         mService.logMessage("Android: User clicked accept call");
         new_player.start();
@@ -149,6 +161,9 @@ public class PhoneCall extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         player.release();
+        new_player.release();
+        callAccepted = false;
+        isPlaying = false;
         vibrator.cancel();
 
     }
@@ -190,11 +205,10 @@ public class PhoneCall extends Activity {
 
         @Override
         protected void onPostExecute(Void result) {
-            if(new_player.isPlaying()) {
-                new_player.stop();
+            if(isPlaying) {
+                player.stop();
+                finish();
             }
-
-            finish();
             super.onPostExecute(result);
         }
     }
@@ -214,10 +228,10 @@ public class PhoneCall extends Activity {
 
         @Override
         protected void onPostExecute(Void result) {
-            if(new_player.isPlaying()) {
+            if(callAccepted) {
                 new_player.stop();
             }
-
+            System.out.println("Stopping call");
             finish();
             super.onPostExecute(result);
         }

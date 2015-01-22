@@ -4,13 +4,9 @@ android {
     compileSdkVersion 20
     buildToolsVersion "19.1.0"
 
-    defaultConfig {
-        applicationId "com.getpebble.android.kit"
-    }
-
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }

@@ -2,7 +2,6 @@ package com.hfast.fakenotification;
 
 import android.app.Activity;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
@@ -25,6 +24,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -33,6 +33,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.support.v4.app.NotificationCompat.WearableExtender;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.NotificationCompat.Action;
 
 import com.hfast.fakenotification.util.PebbleDictionary;
 
@@ -74,6 +77,7 @@ public class Main extends Activity {
 
     private List<TextMessage> textList = new ArrayList<TextMessage>();
     private List<String> senders = new ArrayList<String>();
+
     private MyAdapter listAdapter;
     private int id = 0;
 
@@ -83,12 +87,15 @@ public class Main extends Activity {
 
     PowerManager.WakeLock TempWakeLock;
     ListView listView;
-    NotificationManager mNotificationManager;
+    NotificationManagerCompat mNotificationManager;
     ConnectionService mService;
+    ScreenReceiver mScreenReceiver;
     boolean mBound = false;
 
     private boolean threadConnected = false;
     private boolean startDisconnecting = false;
+
+    //NotificationCompat.WearableExtender wearableExtender;
 
     // our last connection
     ConnectedThread mConnectedThread;// = new ConnectedThread(socket);
@@ -147,9 +154,7 @@ public class Main extends Activity {
         this.registerReceiver(displayGlassCall, new IntentFilter("glasscall"));
         this.registerReceiver(addSelfMessage, new IntentFilter("selfmessage"));
         this.registerReceiver(declineWithMessage, new IntentFilter("declineWithMessage"));
-        this.registerReceiver(new ScreenReceiver(), screenIntents);
-
-
+        this.registerReceiver(mScreenReceiver, screenIntents);
 
         listAdapter = new MyAdapter(this, textList);
         listView = (ListView) findViewById(R.id.inboxList);
@@ -358,6 +363,35 @@ public class Main extends Activity {
         accThread.start();
 
 
+        mNotificationManager = NotificationManagerCompat.from(getApplicationContext());
+//        int notificationId = 001;
+//// Build intent for notification content
+//        Intent viewIntent = new Intent(this, Main.class);
+//        PendingIntent viewPendingIntent =
+//                PendingIntent.getActivity(this, 0, viewIntent, 0);
+//
+//        NotificationCompat.Builder notificationBuilder =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.ic_launcher)
+//                        .setContentTitle("hey")
+//                        .setContentText("testing")
+//                        .setContentIntent(viewPendingIntent);
+//
+//// Get an instance of the NotificationManager service
+//        NotificationManagerCompat notificationManager =
+//                NotificationManagerCompat.from(this);
+//
+//// Build the notification and issues it with notification manager.
+//        notificationManager.notify(notificationId, notificationBuilder.build());
+
+        // Create a WearableExtender to add functionality for wearables
+        /*wearableExtender =
+                new NotificationCompat.WearableExtender()
+                        .setHintHideIcon(true);
+
+*/
+
+
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -407,11 +441,32 @@ public class Main extends Activity {
             String sender = intent.getStringExtra("sender");
             String message = intent.getStringExtra("content");
 
+
             if(getResultData() == null) {
-                Notification.Builder builder = new Notification.Builder(getApplicationContext())
+                // Create an intent for the reply action
+                Intent actionIntent = new Intent(getApplicationContext(), Main.class);
+                PendingIntent actionPendingIntent =
+                        PendingIntent.getActivity(getApplicationContext(), 0, actionIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NotificationCompat.Action action =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_launcher,
+                                "other option", actionPendingIntent)
+                                .build();
+
+                NotificationCompat.Action action2 =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_launcher,
+                                "other option", actionPendingIntent)
+                                .build();
+
+
+                WearableExtender wearableExtender = new WearableExtender().clearActions();
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle(sender)
-                        .setContentText(message);
+                        .setContentText(message)
+                        .extend(wearableExtender);
 
 
                 // Creates an explicit intent for an Activity in your app
@@ -467,8 +522,8 @@ public class Main extends Activity {
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                 builder.setContentIntent(resultPendingIntent);
-                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.notify(sender, 1, builder.build());
+
+                mNotificationManager.notify(sender,1, builder.build());
                 mService.logMessage("Android: Created text message notification from " + sender);
 
             } else{
@@ -738,7 +793,7 @@ public class Main extends Activity {
             String audiolength = intent.getStringExtra("audiolength");
             if(threadConnected) {
                 mConnectedThread.write(("call<caller>" + caller + "</caller><number>" + number + "</number><audiofile>"
-                        + audiofile + "</audiofile><audiolength>" + audiolength + "</audiolength").getBytes());
+                        + audiofile + "</audiofile><audiolength>" + audiolength + "</audiolength>").getBytes());
             }
         }
     };
@@ -1002,6 +1057,7 @@ public class Main extends Activity {
         unregisterReceiver(declineWithMessage);
         unregisterReceiver(mReceiver);
         unregisterReceiver(textReceiver);
+        unregisterReceiver(mScreenReceiver);
 
         if (mBound) {
             unbindService(mConnection);

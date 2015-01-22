@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -43,7 +44,7 @@ public class ConnectionService extends Service {
     public static final int PORT = 5222; //default port
     public static final String USERNAME = "android";
     public static final String PASSWORD = "12345";
-    public static final String RECEIVE_FROM = "lrac@experimenter/Smack";
+    public static final String RECEIVE_FROM = "experiment@experimenter/Smack";
 
     private double sendTime;
     private XMPPConnection conn;
