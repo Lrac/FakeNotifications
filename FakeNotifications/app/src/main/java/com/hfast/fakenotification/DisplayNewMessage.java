@@ -32,6 +32,7 @@ public class DisplayNewMessage extends Activity {
     MessageAdapter theAdapter;
     EditText editMessage;
     ListView theListView;
+    Button button1, button2, button3;
 
     ConnectionService mService;
     boolean mBound = false;
@@ -40,21 +41,26 @@ public class DisplayNewMessage extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Intent intent = getIntent();
         messages = intent.getStringArrayListExtra(Main.EXTRA_MESSAGE);
         sender = intent.getStringExtra(Main.EXTRA_SENDER);
+
         setTitle(sender);
         IntentFilter intentFilter = new IntentFilter("androidtext");
         intentFilter.setPriority(9001);
         this.registerReceiver(newIncomingMessage, intentFilter);
+
         setContentView(R.layout.message_display_list);
-        editMessage = (EditText) findViewById(R.id.editMessage);
         theAdapter = new MessageAdapter(this, messages);
         theListView = (ListView) findViewById(R.id.messageList);
         theListView.setAdapter(theAdapter);
         scrollMyListViewToBottom();
 
-        System.out.println("creating text");
+        editMessage = (EditText) findViewById(R.id.editMessage);
+        button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
+        button3 = (Button) findViewById(R.id.button3);
 
         editMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +82,7 @@ public class DisplayNewMessage extends Activity {
         });
     }
 
+
     private BroadcastReceiver newIncomingMessage = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -84,15 +91,9 @@ public class DisplayNewMessage extends Activity {
                 if (newSender.contentEquals(sender)) {
                     //add on new message
                     messages.add(intent.getStringExtra("content"));
-                    theAdapter.notifyDataSetChanged();
-                    scrollMyListViewToBottom();
-                    // Creates the vibrate, color flash, and tone
-                    Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
-                    vibrator.vibrate(500);
 
-                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                    r.play();
+                    theAdapter.notifyDataSetChanged();
+
                     setResultData("already received");
                 }
             }
@@ -114,6 +115,7 @@ public class DisplayNewMessage extends Activity {
         }
     };
 
+    //function that's called whenever one of the three default message buttons are pressed
     public void default_message(View view){
         Button button = (Button) view;
         String message = button.getHint().toString();
@@ -122,6 +124,7 @@ public class DisplayNewMessage extends Activity {
 
     }
 
+    //function that's called when a user presses send
     public void sendMessage(View view){
         String message = editMessage.getText().toString();
         if(!message.isEmpty()) {

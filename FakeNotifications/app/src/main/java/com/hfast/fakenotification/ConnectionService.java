@@ -134,25 +134,14 @@ public class ConnectionService extends Service {
                         final Message message = (Message) packet;
                         System.out.println("Received message:" + message.getBody());
                         logMessage("Received message: " + message.getBody());
-                        long time = (System.currentTimeMillis());
                         sortMessage(message.getBody());
-//                        double receiveTime = time;
-//                        try {
-//                            receiveTime += SntpClient.main("tick.utoronto.ca");
-//                        } catch (IOException e){
-//                            e.printStackTrace();
-//                        }
-//                        String sendTimeS[] = extract(message.getBody(),new String[]{"sendTime"});
-//                        sendTime = Double.parseDouble(sendTimeS[0]);
-//                        Double timeDelay = receiveTime - sendTime;
-//                        System.out.println("Time Delay: " + new DecimalFormat("0.00").format(timeDelay) + " ms");
                     }
                 }, filter);
 
                 chat = ChatManager.getInstanceFor(conn).createChat(RECEIVE_FROM, new MessageListener() {
                     @Override
                     public void processMessage(Chat chat, Message message) {
-
+                        System.out.println("receiving message here too");
                     }
                 });
                 chatInitiated = true;
@@ -203,47 +192,7 @@ public class ConnectionService extends Service {
             this.sendOrderedBroadcast(intent, null);
 
         } else if (messageContext.contentEquals("androidtext")){
-            String[] contentTags = new String[]{"sender", "content"};
-            String [] parsedContent = extract(message, contentTags);
-            Intent intent = new Intent(device+type);
-            intent.putExtra("sender", parsedContent[0]);
-            intent.putExtra("content", parsedContent[1]);
-            System.out.println("Sending broadcast message: " + device+type);
-            this.sendOrderedBroadcast(intent, null);
-
-        } else if (messageContext.contentEquals("pebblecall")){
-            String[] contentTags = new String[]{"sender", "content", "vibratelength"};
-            String [] parsedContent = extract(message, contentTags);
-            Intent intent = new Intent(device+type);
-            intent.putExtra("sender", parsedContent[0]);
-            intent.putExtra("content", parsedContent[1]);
-            intent.putExtra("vibratelength", parsedContent[2]);
-            System.out.println("Sending broadcast message: " + device+type);
-            this.sendOrderedBroadcast(intent, null);
-
-        } else if (messageContext.contentEquals("pebbletext")){
-            String[] contentTags = new String[]{"sender", "content", "number"};
-            String [] parsedContent = extract(message, contentTags);
-            Intent intent = new Intent(device+type);
-            intent.putExtra("sender", parsedContent[0]);
-            intent.putExtra("content", parsedContent[1]);
-            intent.putExtra("number", parsedContent[2]);
-            System.out.println("Sending broadcast message: " + device+type);
-            this.sendOrderedBroadcast(intent, null);
-
-        } else if (messageContext.contentEquals("glasscall")){
-            String[] contentTags = new String[]{"sender", "content", "audiofile", "audiolength"};
-            String [] parsedContent = extract(message, contentTags);
-            Intent intent = new Intent(device+type);
-            intent.putExtra("sender", parsedContent[0]);
-            intent.putExtra("content", parsedContent[1]);
-            intent.putExtra("audiofile", parsedContent[2]);
-            intent.putExtra("audiolength", parsedContent[3]);
-            System.out.println("Sending broadcast message: " + device+type);
-            this.sendOrderedBroadcast(intent, null);
-
-        } else if (messageContext.contentEquals("glasstext")){
-            String[] contentTags = new String[]{"sender", "content"};
+            String[] contentTags = new String[]{"sender", "content"}; //array of tags to search for when receiving a text
             String [] parsedContent = extract(message, contentTags);
             Intent intent = new Intent(device+type);
             intent.putExtra("sender", parsedContent[0]);
@@ -252,8 +201,6 @@ public class ConnectionService extends Service {
             this.sendOrderedBroadcast(intent, null);
 
         }
-
-
     }
 
     //extracts the content from the tags into an array of strings
